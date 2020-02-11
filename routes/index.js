@@ -1,125 +1,97 @@
 const express = require('express');
+const mongo = require('../routes/db');
 const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
 const dbToDo = 'todo';
 const collectionWorkplace = 'Workplace';
+const collectionUsers = 'users';
 const collectionNote = 'Note';
 const serverIp = '46.101.211.139';
 const serverPort = '27017';
 const urlToDB = `mongodb://${serverIp}:${serverPort}`;
 
-async function main(){
-    let client, db;
-    try{
-        client = await MongoClient.connect(urlToDB, {useNewUrlParser: true});
-        db = client.db(dbToDo);
-        let dCollection = db.collection(collectionWorkplace);
-        let result = await dCollection.find();
-        // let result = await dCollection.countDocuments();
-        // your other codes ....
-        return result.toArray();
-    }
-    catch(err){ console.error(err); } // catch any mongo error here
-    finally{ client.close(); } // make sure to close your connection after
-}
+router.get('/', function(req, res, next) {
+    mongo.connect(function(err){
+        if (err) throw err;
 
-async function getDB() {
-    const promise = new Promise(function(resolve, reject){
-        MongoClient.connect(urlToDB)
-            .then((client) => {
-                console.info('Connected to Database');
-                const toDoDatabase = client.db(dbToDo);
-
-                toDoDatabase.collection(collectionNote).find({}, function (err, result) {
-                    let resultData = [];
-                    result.forEach(function (item) {
-                        console.log('Item: ', item);
-                        resultData.push({
-                            name : item.Name,
-                            wp : item.Workplace,
-                            items : item.Items
-                        });
-                    });
-
-                    resolve(resultData);
+        Promise.all([
+            mongo.db.collection(collectionNote).find().toArray(),
+            mongo.db.collection(collectionWorkplace).find().toArray(),
+            mongo.db.collection(collectionUsers).find().toArray()
+            ]
+        )
+            .then((resultAllData) => {
+                res.json({
+                    notes : resultAllData[0],
+                    wps : resultAllData[1],
+                    users : resultAllData[2]
                 });
             })
             .catch((err) => {
-                console.error('DATABASE GETTING ERROR');
-                reject('Error database getting!');
-        });
+                console.error('Err: ', err);
+            });
     });
 
-    return promise;
+});
+
+function getWrapperFromCursorCollectionNote(cursor) {
+
+    return new Promise((resolve, reject) => {
+        let resultData = [];
+        console.log(7);
+
+        new Promise((resolve1, reject1) => {
+            cursor.each(function (err, doc) {
+                if (doc) {
+                    resultData.push({
+                        name : doc.Name,
+                        wp : doc.Workplace,
+                        items : doc.Items
+                    });
+                }
+                console.log(9);
+            });
+            resolve1(resultData);
+
+        }).then((resultCursor) => {
+            console.log('ResCursor: ', resultCursor);
+            resolve(resultCursor);
+        });
+
+
+        console.log('8 Res: ',  resultData);
+        resolve(resultData);
+    });
+
 }
 
-async function getWps() {
-    let resultData = [];
-    let data = await MongoClient.connect(urlToDB, (err, client) => {
-
-        try {
-            console.log('Connected to DB');
-            const toDoDatabase = client.db(dbToDo);
-            let allRecords = toDoDatabase.collection(collectionNote).find({}, function (err, result) {
-
-                result.forEach(function (item) {
+function getCursorData(client, collection) {
+    console.log(4);
+    return new Promise(((resolve, reject) => {
+        console.log(5);
+        let resultData = [];
+        const toDoDatabase = client.db(dbToDo);
+        const cursor2 = toDoDatabase.collection(collection).find().toArray();
+        console.log('2: ', cursor2);
+        const cursor = toDoDatabase.collection(collection).find({}, function (err, doc) {
+            doc.forEach(function (item) {
+                if (doc) {
                     resultData.push({
                         name : item.Name,
                         wp : item.Workplace,
-                        items : item.items
+                        items : item.Items
                     });
-                });
-
+                }
             });
+            resolve(resultData);
+        });
 
-        } catch (e) {
-            console.error(e);
-        }
-
-
-    });
-    return data;
+    }));
 }
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    const database = getDB().then((result) => {
-        console.info(result);
-        res.send(result);
-    });
-    console.log('DB: ', database);
-    // res.send(data);
-});
+function getMongoClientPromise() {
+    console.log(2);
+    return MongoClient.connect(urlToDB);
+}
 
 module.exports = router;
-
-
-// const toDoDatabase = client.db(dbToDo);
-//
-// let resultWorkplace = [];
-//
-//
-// let resultNote = new Promise(function (resolve, reject) {
-//   let data = {};
-//   let wp = [];
-//   toDoDatabase.collection(collectionNote).find({}, function (err, result) {
-//     result.forEach(function (item) {
-//       wp.push({
-//         name : item.Name,
-//         wp : item.Workplace,
-//         items : item.items
-//       });
-//     });
-//   });
-
-// let note = [];
-// toDoDatabase.collection(collectionWorkplace).find({}, function (findErr, result) {
-//   result.forEach(function (item) {
-//     resultWorkplace.push(item.Name);
-//   })
-// });
-//
-// data.wp = wp;
-// data.notes = note;
-//
-// resolve(data);
