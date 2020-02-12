@@ -11,6 +11,7 @@ const serverPort = '27017';
 const urlToDB = `mongodb://${serverIp}:${serverPort}`;
 
 router.get('/', function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
     mongo.connect(function(err){
         if (err) throw err;
 
