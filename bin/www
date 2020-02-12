@@ -1,67 +1,19 @@
 #!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
-var app = require('../app');
-var debug = require('debug')('todo-server-node:server');
-var http = require('http');
-const serverIp = '46.101.211.139';
-const serverPort = '27017';
-const mongodb = require('mongodb');
-let db;
-/**
- * Get port from environment and store in Express.
- */
+let app = require('../app');
+let debug = require('debug')('todo-server-node:server');
+const http = require('http');
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-// mongodb.MongoClient.connect(`mongodb://${serverIp}:${serverPort}/todo`, (err, database) => {
-//   if (err) {
-//     console.log(err);
-//     process.exit(1)
-//   } else {
-//     console.log('Connected to MONGO database');
-//   }
-//   db = database;
-//   server.listen(port, () => {
-//     console.log('Server listening in http://localhost:' + port)
-//     console.log('Server listening in http://localhost:' + port + '/api/notes');
-//   })
-// });
-
-// app.get('/api/notes', (req, res, next) => {
-//   db.collection('Note').find({}).toArray(function(err, items) {
-//     if (err) {
-//       return next(err)
-//     }
-//
-//     res.json(items)
-//   })
-// });
-//
 server.listen(port, function () {
   console.log(`Started on http://localhost:${port}`);
 });
 
 server.on('error', onError);
 server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
 
 function normalizePort(val) {
   var port = parseInt(val, 10);
@@ -78,10 +30,6 @@ function normalizePort(val) {
 
   return false;
 }
-
-/**
- * Event listener for HTTP server "error" event.
- */
 
 function onError(error) {
   if (error.syscall !== 'listen') {
@@ -106,10 +54,6 @@ function onError(error) {
       throw error;
   }
 }
-
-/**
- * Event listener for HTTP server "listening" event.
- */
 
 function onListening() {
   var addr = server.address();
