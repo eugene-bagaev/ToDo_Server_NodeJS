@@ -10,6 +10,8 @@ var server = http.createServer(app);
 
 server.listen(port, function () {
   console.log(`Started on http://localhost:${port}`);
+  console.log(`All (GET): http://localhost:${port}/api`);
+  console.log(`Notes (GET & POST): http://localhost:${port}/api/notes`);
 });
 
 server.on('error', onError);
@@ -19,12 +21,10 @@ function normalizePort(val) {
   var port = parseInt(val, 10);
 
   if (isNaN(port)) {
-    // named pipe
     return val;
   }
 
   if (port >= 0) {
-    // port number
     return port;
   }
 
