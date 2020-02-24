@@ -12,9 +12,9 @@ router.get('/', function(req, res, next) {
         if (err) throw err;
 
         Promise.all([
-            mongo.db.collection(collectionNote).find().toArray(),
-            mongo.db.collection(collectionWorkplace).find().toArray(),
-            mongo.db.collection(collectionUsers).find().toArray()
+            mongo.db.collection(mongo.constants.collections.NOTE).find().toArray(),
+            mongo.db.collection(mongo.constants.collections.WORKPLACE).find().toArray(),
+            mongo.db.collection(mongo.constants.collections.USER).find().toArray()
             ]
         )
             .then((resultAllData) => {
