@@ -2,9 +2,9 @@ const express = require('express');
 const mongo = require('../routes/db');
 const router = express.Router();
 
-const collectionWorkplace = 'Workplace';
+const collectionWorkplace = 'wp';
 const collectionUsers = 'users';
-const collectionNote = 'Note';
+const collectionNote = 'note';
 
 router.get('/', function(req, res, next) {
 
