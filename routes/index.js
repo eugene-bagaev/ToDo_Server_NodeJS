@@ -7,7 +7,7 @@ const collectionUsers = 'users';
 const collectionNote = 'note';
 
 router.get('/', function(req, res, next) {
-
+    res.header('Access-Control-Allow-Origin', '*');
     mongo.connect(function(err){
         if (err) throw err;
 
