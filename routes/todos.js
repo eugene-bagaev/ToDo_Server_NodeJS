@@ -1,23 +1,36 @@
 const express = require('express');
 const mongo = require('../routes/db');
 const router = express.Router();
-const MongoClient = require('mongodb').MongoClient;
-const dbToDo = 'todo';
-const collectionWorkplace = 'Workplace';
-const collectionUsers = 'users';
-const collectionNote = 'Note';
-const serverIp = '46.101.211.139';
-const serverPort = '27017';
-const urlToDB = `mongodb://${serverIp}:${serverPort}`;
 
-router.get('/', function(req, res, next) {
+// /api/notes route
+
+router.get('/', function(req, res) {
     res.send('GET /api/notes');
 });
 
-router.post('/', function (req, res, next) {
-    console.log('Req: ', req.body);
-    console.log('Res: ', req.query);
-    res.send('POST /api/notes');
+
+router.post('/', function (req, res) {
+    console.log('JSON POST body /api/notes: ', req.body);
+
+    let result = {
+        status: constants.STATUSES.SUCCESS
+    };
+
+    try {
+        const noteForSave = req.body;
+
+        const callbackFunction = function insertOneCallback(data) {
+            result.data = data['ops'];
+            res.send(result);
+        };
+
+        mongo.saveNoteInDatabase(noteForSave, callbackFunction);
+    } catch (e) {
+        console.error(e);
+        result.status = constants.STATUSES.ERROR;
+    }
 });
+
+
 
 module.exports = router;

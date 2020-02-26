@@ -1,9 +1,10 @@
-const mclient = require('mongodb').MongoClient;
-const dburl = 'mongodb://46.101.211.139:27017/';
+const mongoClient = require('mongodb').MongoClient;
+const linkToDatabase = 'mongodb://46.101.211.139:27017/';
 const mongoConnectionParams = {
     useNewUrlParser: true,
     useUnifiedTopology: true
 };
+let db;
 
 const constants = {
     collections: {
@@ -16,12 +17,23 @@ const constants = {
     }
 };
 
-module.exports.connect = function connect(callback) {
-    mclient.connect(dburl, mongoConnectionParams, function(err, client){
+function connect(callback) {
+    mongoClient.connect(linkToDatabase, mongoConnectionParams, function (err, client) {
         console.log('Connected to Mongo DB');
-        const db = client.db(constants.databases.TODO);
+        db = client.db(constants.databases.TODO);
         module.exports.db = db;
         callback(err);
     });
-};
-module.exports.constants = constants;
+}
+
+function saveNoteInDatabase(note, callbackFn) {
+    connect(function (err) {
+        if (err) {
+            console.error('Error in connection to DB!');
+        } else {
+             db.collection(constants.collections.NOTE).insertOne(note, (err, results) => callbackFn(results));
+        }
+    });
+}
+module.exports = {connect, constants, saveNoteInDatabase};
+

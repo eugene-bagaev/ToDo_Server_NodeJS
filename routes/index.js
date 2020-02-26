@@ -2,11 +2,7 @@ const express = require('express');
 const mongo = require('../routes/db');
 const router = express.Router();
 
-const collectionWorkplace = 'wp';
-const collectionUsers = 'users';
-const collectionNote = 'note';
-
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
     res.header('Access-Control-Allow-Origin', '*');
     mongo.connect(function(err){
         if (err) throw err;
@@ -28,6 +24,10 @@ router.get('/', function(req, res, next) {
                 console.error('Err: ', err);
             });
     });
+
+});
+
+router.post('/', function (req, res) {
 
 });
 
