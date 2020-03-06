@@ -1,5 +1,6 @@
 const express = require('express');
 const mongo = require('../routes/db');
+const {constants} = require('../utils/server');
 const router = express.Router();
 
 // /api/notes route
@@ -28,9 +29,31 @@ router.post('/', function (req, res) {
     } catch (e) {
         console.error(e);
         result.status = constants.STATUSES.ERROR;
+        res.send(result);
     }
 });
 
+router.delete('/', function (req, res) {
+    if (req.query && req.query.id) {
+        console.log('DELETE body /api/notes: ', req.query.id);
 
+        let result = {
+            status: constants.STATUSES.SUCCESS
+        };
+
+        try {
+            const callbackFnDeleteNote = function deleteOneCallback(data) {
+                result.data = data['result'];
+                res.send(result);
+            };
+
+            mongo.deleteNoteFromDatabase(req.query.id, callbackFnDeleteNote);
+        } catch (e) {
+            console.error(e);
+            result.status = constants.STATUSES.ERROR;
+            res.send(result);
+        }
+    }
+});
 
 module.exports = router;
