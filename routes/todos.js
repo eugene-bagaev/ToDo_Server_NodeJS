@@ -9,7 +9,6 @@ router.get('/', function(req, res) {
     res.send('GET /api/notes');
 });
 
-
 router.post('/', function (req, res) {
     console.log('JSON POST body /api/notes: ', req.body);
 
